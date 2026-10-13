@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: sordina-malaga
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: "true"
+    startCommand: node server.js
+    healthCheckPath: /api/config
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: MIN_APORTES
+        value: "2"
+      - key: RETENCION_HORAS
+        value: "24"

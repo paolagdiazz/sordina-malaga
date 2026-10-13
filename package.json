@@ -1,0 +1,13 @@
+{
+  "name": "sordina-malaga",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mapa en directo del ruido urbano de Málaga (MVP)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "datos": "node scripts/build-data.js"
+  },
+  "engines": { "node": ">=22.13" },
+  "license": "UNLICENSED"
+}

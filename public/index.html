@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0f15">
+<meta name="description" content="Mapa en directo del ruido urbano de Málaga para elegir rutas y zonas más tranquilas.">
+<title>Sordina · Málaga</title>
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/vendor/maplibre-gl.css">
+<link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<a class="skip" href="#dock">Saltar al menú</a>
+<div id="map" role="region" aria-label="Mapa de ruido de Málaga"></div>
+
+<header class="topbar glass" id="topbar">
+  <div class="tb-row1">
+    <div class="brand">
+      <span class="logo">Sordina</span>
+      <span class="brand-sub">Málaga · ruido urbano</span>
+    </div>
+    <div class="tb-chips">
+      <button class="chip chip-perfil" id="btnPerfil" aria-haspopup="dialog"><span class="chip-k">Perfil</span> <span id="perfilNombre">General</span></button>
+      <button class="chip chip-demo" id="btnDemo" title="Qué es el modo demo">Modo demo</button>
+    </div>
+  </div>
+  <div class="tb-row2">
+    <div class="live" aria-live="off">
+      <span class="live-pill" id="livePill"><span class="live-dot" aria-hidden="true"></span>EN DIRECTO</span>
+      <time class="mono live-clock" id="reloj">--:--:--</time>
+      <span class="live-ago" id="hace">conectando…</span>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <span class="stat-k">Ruido medio</span>
+        <span class="stat-v"><b class="mono" id="medio">—</b><small>dB(A)</small></span>
+      </div>
+      <div class="stat stat-over">
+        <span class="stat-k" id="sobreK">Sobre tu umbral</span>
+        <span class="stat-v"><b class="mono" id="sobre">—</b><small id="sobreDe">de 86</small></span>
+      </div>
+    </div>
+  </div>
+  <div class="tickbar" aria-hidden="true"><i id="tickbar"></i></div>
+</header>
+
+<div class="aviso-perfil glass" id="avisoPerfil" hidden></div>
+
+<div class="maptools">
+  <div class="capas glass" role="radiogroup" aria-label="Qué muestra el mapa" id="capas">
+    <button role="radio" aria-checked="true" data-capa="directo">Directo</button>
+    <button role="radio" aria-checked="false" data-capa="Ld">Día</button>
+    <button role="radio" aria-checked="false" data-capa="Le">Tarde</button>
+    <button role="radio" aria-checked="false" data-capa="Ln">Noche</button>
+    <button role="radio" aria-checked="false" data-capa="campana">2015</button>
+  </div>
+  <div class="leyenda glass" id="leyenda">
+    <div class="ley-t" id="leyT">Nivel en directo · dB(A)</div>
+    <div class="ley-bar" aria-hidden="true"></div>
+    <div class="ley-n mono" aria-hidden="true"><span>45</span><span>55</span><span>65</span><span>75</span><span>85</span></div>
+    <div class="ley-l"><span>Tranquilo</span><span>Moderado</span><span>Alto</span><span>Muy alto</span></div>
+    <div class="ley-x"><span class="ley-nodata" aria-hidden="true"></span>Sin datos (a más de 500 m de un sensor)</div>
+    <div class="ley-x"><span class="ley-faint" aria-hidden="true"></span>Pocas aportaciones: más transparente</div>
+  </div>
+</div>
+
+<nav class="dock glass" id="dock" aria-label="Menú principal">
+  <button class="dock-b" data-panel="perfil" aria-label="Perfiles">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.9-3.9 3.9-6 7.5-6s6.6 2.1 7.5 6"/></svg><span>Perfil</span></button>
+  <button class="dock-b" data-panel="ruta" aria-label="Rutas tranquilas">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8 18h6.5a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7H16"/></svg><span>Ruta</span></button>
+  <button class="dock-medir" data-panel="medir" id="btnMedir">
+    <span class="medir-ring" aria-hidden="true"></span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>
+    <span>Medir aquí</span></button>
+  <button class="dock-b" data-panel="privacidad" aria-label="Privacidad y servidor">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.6-3 8.3-7 10-4-1.7-7-5.4-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Privacidad</span></button>
+  <button class="dock-b" data-panel="mas" aria-label="Más opciones">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span>Más</span></button>
+</nav>
+
+<aside class="sheet glass" id="sheet" role="dialog" aria-modal="false" aria-labelledby="sheetTitle" hidden>
+  <div class="sheet-handle" id="sheetHandle" role="button" tabindex="0" aria-label="Ampliar o reducir el panel"><i></i></div>
+  <button class="sheet-close" id="sheetClose" aria-label="Cerrar panel">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="sheet-body" id="sheetBody"></div>
+</aside>
+
+<div class="modal-bg" id="modal" hidden>
+  <div class="modal glass" role="dialog" aria-modal="true" aria-labelledby="modalTitle" id="modalBox"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/vendor/maplibre-gl.js"></script>
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
